@@ -37,8 +37,8 @@
 #define NXU8_PSW_C(state,f) (NXU8_PSW_W(state,NXU8_PSW_R(state)&(0xFF^f)))
 #define NXU8_PSW_F(state,f) (NXU8_PSW_R(state)&f?1:0)
 
-#define NXU8_PC_R(state) (state->pc&0xFE)
-#define NXU8_PC_W(state,x) (state->pc=x&0xFE)
+#define NXU8_PC_R(state) (state->pc&0xFFFE)
+#define NXU8_PC_W(state,x) (state->pc=x&0xFFFE)
 
 typedef struct {
     NXU8_BYTE regs[16];
