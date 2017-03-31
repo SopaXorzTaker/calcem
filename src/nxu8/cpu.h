@@ -1,16 +1,16 @@
 #ifndef NXU8__CPU_H
 #define NXU8__CPU_H
 
-#include "../config.h"
+#include "config.h"
 
 #include <stdlib.h>
 
 typedef struct nxu8_cpu_state_s_ nxu8_cpu_state_t;
 
-typedef fxes_byte nxu8_byte;
-typedef fxes_word nxu8_word;
-typedef fxes_dword nxu8_dword;
-typedef fxes_qword nxu8_qword;
+typedef uint8_t nxu8_byte;
+typedef uint16_t nxu8_word;
+typedef uint32_t nxu8_dword;
+typedef uint64_t nxu8_qword;
 
 typedef nxu8_byte (*nxu8_code_read_proc)(nxu8_cpu_state_t *cpu_state, size_t offs);
 typedef nxu8_byte (*nxu8_data_read_proc)(nxu8_cpu_state_t *cpu_state, size_t offs);

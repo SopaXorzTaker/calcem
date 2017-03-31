@@ -1,14 +1,15 @@
 #include "memory.h"
 
-#include <stdlib.h>
 #include <assert.h>
 
-void memory_open(memory_t *memory)
+void memory_open(memory_t *memory, size_t code_size, size_t data_size)
 {
-    memory->code = malloc(sizeof(fxes_byte) * FXES_CODE_SIZE);
+    memory->code_size = code_size;
+    memory->code = malloc(sizeof(uint8_t) * code_size);
     assert(memory->code);
     
-    memory->data = malloc(sizeof(fxes_byte) * FXES_DATA_SIZE);
+    memory->data_size = data_size;
+    memory->data = malloc(sizeof(uint8_t) * data_size);
     assert(memory->data);
 }
 
