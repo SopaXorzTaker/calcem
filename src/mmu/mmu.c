@@ -3,8 +3,10 @@
 #include "../data/avl.h"
 
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
+
+#include <stdlib.h>
+#include "../debug/mmdebug.h"
 
 static void *hooks_duplicate(void *data)
 {

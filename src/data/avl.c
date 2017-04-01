@@ -1,6 +1,7 @@
 #include "avl.h"
 
 #include <stdlib.h>
+#include "../debug/mmdebug.h"
 
 #define AVL_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define AVL_DEPTH(a) ((a) ? (a)->depth : 0)

@@ -1,8 +1,10 @@
 #ifndef NXU8__CPU_H
 #define NXU8__CPU_H
 
-#include <stdlib.h>
 #include <stdint.h>
+
+#include <stdlib.h>
+#include "../debug/mmdebug.h"
 
 typedef struct nxu8_cpu_state_s_ nxu8_cpu_state_t;
 

@@ -2,7 +2,9 @@
 #define MMU__MMU_H
 
 #include <stdint.h>
+
 #include <stdlib.h>
+#include "../debug/mmdebug.h"
 
 typedef struct _avl_tree_s avl_tree_t;
 

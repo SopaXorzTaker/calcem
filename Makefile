@@ -6,7 +6,8 @@ OBJDIR := obj
 
 CC := gcc
 CCEXT := c
-CCFLAGS := -Wall -std=c11
+#CCFLAGS := -Wall -std=c11
+CCFLAGS := -Wall -std=c11 -g
 
 FILES := $(shell find $(SRCDIR) -name *.$(CCEXT))
 
