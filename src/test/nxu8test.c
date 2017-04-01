@@ -40,12 +40,9 @@ int main(int argc, char *argv[])
     }
     
     nxu8_cpu_reset(&context.cpu_state);
-    int lol = 0;
     while (context.running)
     {
         nxu8_cpu_next(&context.cpu_state);
-        ++lol;
-        if (lol == 1000) context.running = 0;
     }
     
     context_close(&context);
