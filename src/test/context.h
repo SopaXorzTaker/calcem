@@ -10,6 +10,8 @@ typedef struct context_s_
     mmu_t mmu;
     
     int running;
+    
+    nxu8_byte_t coproc_reg[16];
 } context_t;
 
 void context_open(context_t *context);

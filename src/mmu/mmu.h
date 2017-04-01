@@ -8,13 +8,13 @@
 
 typedef struct _avl_tree_s avl_tree_t;
 
-typedef uint8_t (*mmu_hook_receiver_read_callback_func_t)(void *userdata, size_t offs);
-typedef void (*mmu_hook_receiver_write_callback_func_t)(void *userdata, size_t offs, uint8_t value);
+typedef uint8_t (*mmu_hook_receiver_read_callback_t)(void *userdata, size_t offs);
+typedef void (*mmu_hook_receiver_write_callback_t)(void *userdata, size_t offs, uint8_t value);
 
 typedef struct mmu_hook_receiver_s_
 {
-    mmu_hook_receiver_read_callback_func_t read;
-    mmu_hook_receiver_write_callback_func_t write;
+    mmu_hook_receiver_read_callback_t read;
+    mmu_hook_receiver_write_callback_t write;
 } mmu_hook_receiver_t;
 
 typedef struct mmu_hook_s_
