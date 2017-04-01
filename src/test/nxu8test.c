@@ -3,40 +3,45 @@
 #include <stdint.h>
 #include <assert.h>
 
+#include "context.h"
 #include "../nxu8/cpu.h"
-#include "../memory/memory.h"
 
 #define FXES_CODE_SIZE ((1 << 16) << 4)
 #define FXES_DATA_SIZE ((1 << 16) << 8)
 
 int main(int argc, char *argv[])
 {
-    nxu8_cpu_state_t nxu8_cpu_state;
-    memory_t memory;
-    
     if (argc < 2)
     {
         printf("no code dump passed\n");
         return 1;
     }
     
-    FILE *handle = fopen(argv[1], "rb");
-    if (!handle)
+    context_t context;
+    context.running = 1;
+    context.mmu.code_size = FXES_CODE_SIZE;
+    context.mmu.data_size = FXES_DATA_SIZE;
+    context_open(&context);
+    
     {
-        printf("failed to open '%s' for reading\n", argv[1]);
-        return 2;
+        FILE *handle = fopen(argv[1], "rb");
+        if (!handle)
+        {
+            printf("failed to open '%s' for reading\n", argv[1]);
+            return 2;
+        }
+        size_t code_source_size = fread(context.mmu.code, sizeof(uint8_t), FXES_CODE_SIZE, handle);
+        fclose(handle);
+        printf("Read %zu bytes of code\n", code_source_size);
     }
     
-    memory_open(&memory, FXES_CODE_SIZE, FXES_DATA_SIZE); // * alloc memory here; at this point fread should work
+    nxu8_cpu_reset(&context.cpu_state);
+    while (context.running)
+    {
+        nxu8_cpu_next(&context.cpu_state);
+    }
     
-    size_t code_size = fread(memory.code, sizeof(uint8_t), FXES_CODE_SIZE, handle);
-    fclose(handle);
-    printf("Read %zu bytes of code\n", code_size);
-    
-    
-    
-    
-    memory_close(&memory); // * free memory here
+    context_close(&context);
     
     return 0;
 }
