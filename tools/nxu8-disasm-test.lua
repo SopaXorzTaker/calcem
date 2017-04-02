@@ -55,9 +55,9 @@ emit_code(0xE356) emit_code(0x9C32) -- * L ERn, 0x56:[EA]
 emit_code(0xFE9F) emit_code(0x9C32) -- * L ERn, DSR:[EA]
 emit_code(0x907F) emit_code(0x9C32) -- * L ERn, R7:[EA]
 
-local handle_out = io.open("nxu8-disasm-test.data.out", "wb")
+local handle_out = io.open("test/nxu8-disasm-test.data.out", "wb")
 if not handle_out then
-	print("failed to open 'nxu8-disasm-test.data.out' for writing")
+	print("failed to open 'test/nxu8-disasm-test.data.out' for writing")
 	return 2
 end
 handle_out:write(table.concat(out_buffer))
