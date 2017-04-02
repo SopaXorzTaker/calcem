@@ -97,11 +97,6 @@ while current_csr < content_pages do
 				instr_note = "probably invalid, n is not m + 1"
 			end
 			
-		elseif instruction & 0xF000 == 0x8000 then
-			instr_mnemonic = alu_basic_mnemonic_lookup[instruction & 0xF]
-			instr_op1 = "R" .. ((instruction >> 8) & 0xF)
-			instr_op2 = "R" .. ((instruction >> 4) & 0xF)
-			
 		elseif instruction & 0xF0FF == 0x801F then
 			instr_mnemonic = "DAA"
 			instr_op1 = "R" .. ((instruction >> 8) & 0xF)
@@ -113,6 +108,11 @@ while current_csr < content_pages do
 		elseif instruction & 0xF0FF == 0x805F then
 			instr_mnemonic = "NEG"
 			instr_op1 = "R" .. ((instruction >> 8) & 0xF)
+			
+		elseif instruction & 0xF000 == 0x8000 then
+			instr_mnemonic = alu_basic_mnemonic_lookup[instruction & 0xF]
+			instr_op1 = "R" .. ((instruction >> 8) & 0xF)
+			instr_op2 = "R" .. ((instruction >> 4) & 0xF)
 			
 		elseif instruction & 0xF01C == 0x9000 then
 			instr_mnemonic = (instruction & 0x0001 == 0) and "L" or "ST"
@@ -235,7 +235,7 @@ while current_csr < content_pages do
 		    
 		elseif instruction & 0xF000 == 0xC000 then
 			instr_mnemonic = conditional_branch_lookup[(instruction & 0x0F00) >> 8]
-			instr_op1 = ("0x%01X:0x%04X"):format(current_csr, (current_pc + 2 + sign_extend(instruction & 0xFF, 0x80) * 2) & 0xFFFE)
+			instr_op1 = ("0x%04X"):format((current_pc + 2 + sign_extend(instruction & 0xFF, 0x80) * 2) & 0xFFFE)
 			
 		elseif instruction & 0xF000 == 0xB000 or
 		       instruction & 0xF000 == 0xD000 then
@@ -274,9 +274,9 @@ while current_csr < content_pages do
 			instr_op2 = ("0x%02X"):format(instruction & 0xFF)
 		
 		elseif instruction & 0xFF00 == 0xEB00 then
-			if     instruction & 0x0000 == 0x00F7 then
+			if     instruction & 0x00FF == 0x00F7 then
 				instr_mnemonic = "DI"
-			elseif instruction & 0x0000 == 0x007F then
+			elseif instruction & 0x00FF == 0x007F then
 				instr_mnemonic = "RC"
 			else
 				instr_mnemonic = "PSW &= " .. ("0x%02X"):format(instruction & 0xFF)
@@ -284,9 +284,9 @@ while current_csr < content_pages do
 			end
 		
 		elseif instruction & 0xFF00 == 0xED00 then
-			if     instruction & 0x0000 == 0x0008 then
+			if     instruction & 0x00FF == 0x0008 then
 				instr_mnemonic = "EI"
-			elseif instruction & 0x0000 == 0x0080 then
+			elseif instruction & 0x00FF == 0x0080 then
 				instr_mnemonic = "SC"
 			else
 				instr_mnemonic = "PSW |= " .. ("0x%02X"):format(instruction & 0xFF)
@@ -313,14 +313,14 @@ while current_csr < content_pages do
 		
 		elseif instruction & 0xF00F == 0xF002 then
 			instr_mnemonic = "B"
-			instr_op1 = ("0x%01X:ER%i"):format(current_csr, (instruction & 0x00F0) >> 4)
+			instr_op1 = ("ER%i"):format(current_csr, (instruction & 0x00F0) >> 4)
 			if instruction & 0x0F00 ~= 0 then
 				instr_note = "probably invalid, &0x0F00 is not 0"
 			end
 		
 		elseif instruction & 0xF00F == 0xF003 then
 			instr_mnemonic = "BL"
-			instr_op1 = ("0x%01X:ER%i"):format(current_csr, (instruction & 0x00F0) >> 4)
+			instr_op1 = ("ER%i"):format(current_csr, (instruction & 0x00F0) >> 4)
 			if instruction & 0x0F00 ~= 0 then
 				instr_note = "probably invalid, &0x0F00 is not 0"
 			end
