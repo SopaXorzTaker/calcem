@@ -26,6 +26,7 @@ typedef struct mmu_hook_s_
 
 typedef struct mmu_s_
 {
+    // * TODO: add ROM window
     uint8_t *code, *data;
     size_t code_size, data_size;
     avl_tree_t *hooks;

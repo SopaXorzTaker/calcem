@@ -28,8 +28,6 @@ static void dispatch_invalid_opcode_callback(nxu8_cpu_state_t *cpu_state, size_t
     context_t *context = (context_t *)cpu_state->userdata;
     
     printf("invalid opcode at %zx\n", offs);
-    
-    context->running = 0;
 }
 
 static uint8_t dispatch_coproc_reg_read(nxu8_cpu_state_t *cpu_state, size_t regn)

@@ -35,6 +35,13 @@
 
 void nxu8_cpu_next(nxu8_cpu_state_t *cpu_state)
 {
+    // * TODO: look out for cpu_state->reg_pc and try to keep its LSB 0
+    nxu8_word_t instruction;
+    instruction  = ((nxu8_word_t)(cpu_state->code_read(cpu_state, cpu_state->reg_pc    )));
+    instruction |= ((nxu8_word_t)(cpu_state->code_read(cpu_state, cpu_state->reg_pc + 1))) << 8;
+    cpu_state->reg_pc += 2;
+    
+    
     // * TODO: remember to process DSR instructions with the following instruction
     // * NOTE: must not return prematurely from here, important stuff happens at the end
     
