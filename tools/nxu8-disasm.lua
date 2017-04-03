@@ -26,7 +26,7 @@ do
 		padding_size = 0x10000 - padding_size
 	end
 	content = content .. ("\0"):rep(padding_size)
-	content_pages = #content / 0x10000
+	content_pages_s16 = #content
 end
 
 local alu_basic_mnemonic_lookup = {
@@ -72,7 +72,7 @@ local function fetch_code()
 end
 
 current_csr = 0
-while current_csr < content_pages do
+while current_csr < content_pages_s16 do
 	current_pc = 0
 	local instr_dsr_prefix = false
 	local dsr_prefix_code
@@ -454,12 +454,12 @@ while current_csr < content_pages do
 			
 			local code_repr_tbl = {("%02X %02X"):format(instruction & 0xFF, instruction >> 8)}
 			if immediate_code then
-				this_pc = this_pc - 2
+				this_pc = (this_pc + 0xFFFE) % 0x10000
 				table.insert(code_repr_tbl, ("%02X %02X"):format(immediate_code & 0xFF, immediate_code >> 8))
 			end
 			
 			if instr_dsr_prefix then
-				this_pc = this_pc - 2
+				this_pc = (this_pc + 0xFFFE) % 0x10000
 			
 				if     instr_op1 and instr_op1:find("^%[") then
 					instr_op1 = instr_dsr_prefix .. ":" .. instr_op1
@@ -472,7 +472,7 @@ while current_csr < content_pages do
 			
 			if instr_mnemonic then
 				print(("%06X   %-17s  %-8s%s%s%s%s"):format(
-					this_pc,
+					current_csr | this_pc,
 					table.concat(code_repr_tbl, " "),
 					instr_mnemonic,
 					instr_op1 and instr_op1 or "",
@@ -482,7 +482,7 @@ while current_csr < content_pages do
 				))
 			else
 				print(("%06X   %-17s  Unrecognized command"):format(
-					this_pc,
+					current_csr | this_pc,
 					table.concat(code_repr_tbl, " ")
 				))
 			end
