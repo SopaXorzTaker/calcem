@@ -2,6 +2,17 @@
 
 local args = {...}
 
+-- * thank SopaXorzTaker for the function overhead here
+-- * I know that print accepts more arguments but I don't care
+local _print = print
+local function print(str)
+	if emit_0x_notation then
+		_print(str)
+	else
+		_print(str:gsub("0x([A-Fa-f0-9:]*)", "%1h"))
+	end
+end
+
 if not args[1] then
 	print("no code dump passed")
 	return 1
@@ -235,7 +246,7 @@ while current_csr < content_pages_s16 do
 		    
 		elseif instruction & 0xF000 == 0xC000 then
 			instr_mnemonic = conditional_branch_lookup[(instruction & 0x0F00) >> 8]
-			instr_op1 = ("0x%04X"):format((current_pc + 2 + sign_extend(instruction & 0xFF, 0x80) * 2) & 0xFFFE)
+			instr_op1 = ("0x%01X:%04X"):format(current_csr, (current_pc + 2 + sign_extend(instruction & 0xFF, 0x80) * 2) & 0xFFFE)
 			
 		elseif instruction & 0xF000 == 0xB000 or
 		       instruction & 0xF000 == 0xD000 then
@@ -297,7 +308,7 @@ while current_csr < content_pages_s16 do
 			current_pc = current_pc + 2
 			instr_mnemonic = "B"
 			immediate_code = fetch_code()
-			instr_op1 = ("0x%01X:0x%04X"):format((instruction & 0x0F00) >> 8, immediate_code & 0xFFFE)
+			instr_op1 = ("0x%01X:%04X"):format((instruction & 0x0F00) >> 8, immediate_code & 0xFFFE)
 			if instruction & 0x00F0 ~= 0 then
 				instr_note = "probably invalid, &0x00F0 is not 0"
 			end
@@ -306,7 +317,7 @@ while current_csr < content_pages_s16 do
 			current_pc = current_pc + 2
 			instr_mnemonic = "BL"
 			immediate_code = fetch_code()
-			instr_op1 = ("0x%01X:0x%04X"):format((instruction & 0x0F00) >> 8, immediate_code & 0xFFFE)
+			instr_op1 = ("0x%01X:%04X"):format((instruction & 0x0F00) >> 8, immediate_code & 0xFFFE)
 			if instruction & 0x00F0 ~= 0 then
 				instr_note = "probably invalid, &0x00F0 is not 0"
 			end
@@ -471,8 +482,9 @@ while current_csr < content_pages_s16 do
 			end
 			
 			if instr_mnemonic then
-				print(("%06X   %-17s  %-8s%s%s%s%s"):format(
-					current_csr | this_pc,
+				print(("%01X:%04X   %-17s  %-8s%s%s%s%s"):format(
+					current_csr >> 16,
+					this_pc,
 					table.concat(code_repr_tbl, " "),
 					instr_mnemonic,
 					instr_op1 and instr_op1 or "",
@@ -481,8 +493,9 @@ while current_csr < content_pages_s16 do
 					instr_note and (" (" .. instr_note .. ")") or ""
 				))
 			else
-				print(("%06X   %-17s  Unrecognized command"):format(
-					current_csr | this_pc,
+				print(("%01X:%04X   %-17s  Unrecognized command"):format(
+					current_csr >> 16,
+					this_pc,
 					table.concat(code_repr_tbl, " ")
 				))
 			end
