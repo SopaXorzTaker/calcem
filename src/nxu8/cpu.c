@@ -35,8 +35,13 @@
 
 void nxu8_cpu_next(nxu8_cpu_state_t *cpu_state)
 {
-    // * TODO: look out for cpu_state->reg_pc and try to keep its LSB 0
     nxu8_word_t instruction;
+
+    if (cpu_state->reg_pc & 0x01) {
+        printf("warning: last bit of PC can't be 1, correcting\n");
+        cpu_state->reg_pc &= 0xfffe;
+    }
+
     instruction  = ((nxu8_word_t)(cpu_state->code_read(cpu_state, cpu_state->reg_pc    )));
     instruction |= ((nxu8_word_t)(cpu_state->code_read(cpu_state, cpu_state->reg_pc + 1))) << 8;
     cpu_state->reg_pc += 2;
