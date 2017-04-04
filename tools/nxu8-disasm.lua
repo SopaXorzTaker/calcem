@@ -40,6 +40,10 @@ do
 	content_pages_s16 = #content
 end
 
+
+local interrupt_mnemonic_lookup = {
+    [0] = "_SP", "_RESET", "_BRK", "_NMICE", "_NMI", "_INT0", "_INT1", "_INT2", "_INT3", "_INT4", "_INT5", "_INT6", "_INT7", "_INT8", "_INT9", "_INT10", "_INT11", "_INT12", "_INT13", "_INT14", "_INT15", "_INT16", "_INT17", "_INT18", "_INT19", "_INT20", "_INT21", "_INT22", "_INT23", "_INT24", "_INT25", "_INT26", "_INT27", "_INT28", "_INT29", "_INT30", "_INT31", "_INT32", "_INT33", "_INT34", "_INT35", "_INT36", "_INT37", "_INT38", "_INT39", "_INT40", "_INT41", "_INT42", "_INT43", "_INT44", "_INT45", "_INT46", "_INT47", "_INT48", "_INT49", "_INT50", "_INT51", "_INT52", "_INT53", "_INT54", "_INT55", "_INT56", "_INT57", "_INT58", "_SWI0", "_SWI1", "_SWI2", "_SWI3", "_SWI4", "_SWI5", "_SWI6", "_SWI7", "_SWI8", "_SWI9", "_SWI10", "_SWI11", "_SWI12", "_SWI13", "_SWI14", "_SWI15", "_SWI16", "_SWI17", "_SWI18", "_SWI19", "_SWI20", "_SWI21", "_SWI22", "_SWI23", "_SWI24", "_SWI25", "_SWI26", "_SWI27", "_SWI28", "_SWI29", "_SWI30", "_SWI31", "_SWI32", "_SWI33", "_SWI34", "_SWI35", "_SWI36", "_SWI37", "_SWI38", "_SWI39", "_SWI40", "_SWI41", "_SWI42", "_SWI43", "_SWI44", "_SWI45", "_SWI46", "_SWI47", "_SWI48", "_SWI49", "_SWI50", "_SWI51", "_SWI52", "_SWI53", "_SWI54", "_SWI55", "_SWI56", "_SWI57", "_SWI58", "_SWI59", "_SWI60", "_SWI61", "_SWI62", "_SWI63"
+}
 local alu_basic_mnemonic_lookup = {
 	[0] = "MOV", "ADD", "AND", "OR", "XOR", "CMPC", "ADDC", "CMP", "SUB", "SUBC", "SLL", "SLLC", "SRL", "SRLC", "SRA"
 }
@@ -96,7 +100,11 @@ while current_csr < content_pages_s16 do
 		local instr_mnemonic, instr_op1, instr_op2
 		local instr_note
 		
-		if     instruction & 0x8000 == 0x0000 then
+        if current_csr == 0 and current_pc < 0xFF then
+                instr_mnemonic = interrupt_mnemonic_lookup[current_pc >> 1]
+                instr_op1 = ("0x%04X"):format(instruction)
+                
+		elseif     instruction & 0x8000 == 0x0000 then
 			instr_mnemonic = alu_basic_mnemonic_lookup[instruction >> 12]
 			instr_op1 = "R" .. ((instruction >> 8) & 0xF)
 			instr_op2 = ("0x%02X"):format(instruction & 0xFF)
