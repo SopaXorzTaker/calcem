@@ -6,7 +6,10 @@
 #include "../debug/mmdebug.h"
 
 #include "context.h"
+
 #include "../nxu8/cpu.h"
+#include "../nxu8/decoder.h"
+#include "../nxu8/interrupt.h"
 
 #define FXES_CODE_SIZE ((1 << 16) << 4)
 #define FXES_DATA_SIZE ((1 << 16) << 8)

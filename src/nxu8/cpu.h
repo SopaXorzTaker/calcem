@@ -2,9 +2,38 @@
 #define NXU8__CPU_H
 
 #include <stdint.h>
-
 #include <stdlib.h>
-#include "../debug/mmdebug.h"
+
+// * note that 'i' is evaluated many times in these macros
+// * example: NXU8_READ_QR(s, k++) will increment 'k' 8 times
+
+#define NXU8_READ_R (s, i) ((nxu8_byte_t)(s)->reg_r[i])
+#define NXU8_READ_ER(s, i) (((( nxu8_word_t) NXU8_READ_R((s), (i) + 1)) <<  8) | (( nxu8_word_t) NXU8_READ_R((s), (i))))
+#define NXU8_READ_XR(s, i) ((((nxu8_dword_t)NXU8_READ_ER((s), (i) + 1)) << 16) | ((nxu8_dword_t)NXU8_READ_ER((s), (i))))
+#define NXU8_READ_QR(s, i) ((((nxu8_qword_t)NXU8_READ_XR((s), (i) + 1)) << 32) | ((nxu8_qword_t)NXU8_READ_XR((s), (i))))
+
+#define NXU8_WRITE_R (s, i, v) ((s)->reg_r[i] = (nxu8_byte_t)(v))
+#define NXU8_WRITE_ER(s, i, v) ( NXU8_WRITE_R((s), (i) + 1, ( nxu8_byte_t)((v) >>  8)),  NXU8_WRITE_R((s), (i), ( nxu8_byte_t)(v)))
+#define NXU8_WRITE_XR(s, i, v) (NXU8_WRITE_ER((s), (i) + 1, ( nxu8_word_t)((v) >> 16)), NXU8_WRITE_ER((s), (i), ( nxu8_word_t)(v)))
+#define NXU8_WRITE_QR(s, i, v) (NXU8_WRITE_XR((s), (i) + 1, (nxu8_dword_t)((v) >> 32)), NXU8_WRITE_XR((s), (i), (nxu8_dword_t)(v)))
+
+#define NXU8_READ_CR (s, i) ((s)->coproc_reg_read((s), (i)))
+#define NXU8_READ_CER(s, i) (((( nxu8_word_t) NXU8_READ_CR((s), (i) + 1)) <<  8) | (( nxu8_word_t) NXU8_READ_CR((s), (i))))
+#define NXU8_READ_CXR(s, i) ((((nxu8_dword_t)NXU8_READ_CER((s), (i) + 1)) << 16) | ((nxu8_dword_t)NXU8_READ_CER((s), (i))))
+#define NXU8_READ_CQR(s, i) ((((nxu8_qword_t)NXU8_READ_CXR((s), (i) + 1)) << 32) | ((nxu8_qword_t)NXU8_READ_CXR((s), (i))))
+
+#define NXU8_WRITE_CR (s, i, v) ((s)->coproc_reg_write((s), (i), (nxu8_byte_t)(v)))
+#define NXU8_WRITE_CER(s, i, v) ( NXU8_WRITE_CR((s), (i) + 1, ( nxu8_byte_t)((v) >>  8)),  NXU8_WRITE_CR((s), (i), ( nxu8_byte_t)(v)))
+#define NXU8_WRITE_CXR(s, i, v) (NXU8_WRITE_CER((s), (i) + 1, ( nxu8_word_t)((v) >> 16)), NXU8_WRITE_CER((s), (i), ( nxu8_word_t)(v)))
+#define NXU8_WRITE_CQR(s, i, v) (NXU8_WRITE_CXR((s), (i) + 1, (nxu8_dword_t)((v) >> 32)), NXU8_WRITE_CXR((s), (i), (nxu8_dword_t)(v)))
+
+#define NXU8_PSW_ELEVEL ((nxu8_byte_t)0x03)
+#define NXU8_PSW_HC     ((nxu8_byte_t)0x04)
+#define NXU8_PSW_MIE    ((nxu8_byte_t)0x08)
+#define NXU8_PSW_OV     ((nxu8_byte_t)0x10)
+#define NXU8_PSW_S      ((nxu8_byte_t)0x20)
+#define NXU8_PSW_Z      ((nxu8_byte_t)0x40)
+#define NXU8_PSW_C      ((nxu8_byte_t)0x80)
 
 typedef struct nxu8_cpu_state_s_ nxu8_cpu_state_t;
 
@@ -43,12 +72,6 @@ typedef struct nxu8_cpu_state_s_
 } nxu8_cpu_state_t;
 
 void nxu8_cpu_next(nxu8_cpu_state_t *cpu_state);
-int nxu8_cpu_nonmaskable_interrupt(nxu8_cpu_state_t *cpu_state, size_t vector);
-int nxu8_cpu_maskable_interrupt(nxu8_cpu_state_t *cpu_state, size_t vector);
-int nxu8_cpu_software_interrupt(nxu8_cpu_state_t *cpu_state, size_t vector);
-int nxu8_cpu_emulator_interrupt(nxu8_cpu_state_t *cpu_state);
-void nxu8_cpu_reset(nxu8_cpu_state_t *cpu_state);
-void nxu8_cpu_break(nxu8_cpu_state_t *cpu_state);
 
 #endif // NXU8__CPU_H
 
