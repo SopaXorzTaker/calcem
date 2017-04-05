@@ -33,6 +33,102 @@
 #define NXU8_PSW_Z      ((nxu8_byte_t)0x40)
 #define NXU8_PSW_C      ((nxu8_byte_t)0x80)
 
+#define NXU8_PSW_MASK_ALUCLR_ADD    0x0B
+#define NXU8_PSW_MASK_ALUCLR_LOGIC  0x5F
+
+#define NXU8_TWOSCOMPL_8(x) ((x-1)&0xFF)
+
+nxu8_byte _nxu8_alu_add8(nxu8_cpu_state_t *cpu_state, nxu8_byte x, nxu8_byte y) {
+    int temp = (int)x+y;
+
+    cpu_state->reg_epsw[0] &= NXU8_PSW_MASK_ALUCLR_ADD;
+
+    // overflow is the same as the carry in this case? :P
+    if (temp > 0xFF)
+        cpu_state->reg_epsw[0] |= NXU8_PSW_C | NXU8_PSW_OV;
+
+    if (temp > 0x0F)
+        cpu_state->reg_epsw[0] |= NXU8_PSW_HC;
+
+    if (temp & 0x80)
+        cpu_state->reg_epsw[0] |= NXU8_PSW_S;
+
+    temp = temp & 0xFF;
+
+    if (!temp)
+        cpu_state->reg_epsw[0] |= NXU8_PSW_Z;
+
+    return temp;
+}
+
+nxu8_byte _nxu8_alu_sub8(nxu8_cpu_state_t *cpu_state, nxu8_byte x, nxu8_byte y) {
+    return _nxu8_alu_add8(cpu_state, x, NXU8_TWOSCOMPL_8(y));
+}
+
+nxu8_byte _nxu8_alu_and8(nxu8_cpu_state_t *cpu_state, nxu8_byte x, nxu8_byte y) {
+    cpu_state->reg_epsw[0] &= NXU8_PSW_MASK_ALUCLR_LOGIC;
+
+    x &= y;
+
+    if (x & 0x80)
+        cpu_state->reg_epsw[0] |= NXU8_PSW_S;
+
+    if (!x)
+        cpu_state->reg_epsw[0] |= NXU8_PSW_Z;
+
+    return temp;
+}
+
+nxu8_byte _nxu8_alu_or8(nxu8_cpu_state_t *cpu_state, nxu8_byte x, nxu8_byte y) {
+    cpu_state->reg_epsw[0] &= NXU8_PSW_MASK_ALUCLR_LOGIC;
+
+    x |= y;
+
+    if (x & 0x80)
+        cpu_state->reg_epsw[0] |= NXU8_PSW_S;
+
+    if (!x)
+        cpu_state->reg_epsw[0] |= NXU8_PSW_Z;
+
+    return temp;
+}
+
+nxu8_byte _nxu8_alu_xor8(nxu8_cpu_state_t *cpu_state, nxu8_byte x, nxu8_byte y) {
+    cpu_state->reg_epsw[0] &= NXU8_PSW_MASK_ALUCLR_LOGIC;
+
+    x ^= y;
+
+    if (x & 0x80)
+        cpu_state->reg_epsw[0] |= NXU8_PSW_S;
+
+    if (!x)
+        cpu_state->reg_epsw[0] |= NXU8_PSW_Z;
+
+    return temp;
+}
+
+
+void _nxu8_instr_alu_op(nxu8_cpu_state_t *cpu_state, nxu8_byte_t op, nxu8_byte_t reg, nxu8_byte_t y, int regreg) {
+
+    nxu8_byte_t x = NXU8_READ_R(cpu_state, reg);
+
+    // y is either immediate or a register
+
+    if (regreg)
+        y = NXU8_READ_R(cpu_state, y);
+
+    switch (op) {
+        case 0:
+            x = y;
+            break;
+        case 1:
+            x = _nxu8_alu_add8(cpu_state, x, y);
+            break;
+    }
+
+    NXU8_WRITE_R(cpu_state, reg, x);
+}
+
 void nxu8_cpu_next(nxu8_cpu_state_t *cpu_state)
 {
     nxu8_word_t instruction;
@@ -44,6 +140,9 @@ void nxu8_cpu_next(nxu8_cpu_state_t *cpu_state)
 
     instruction  = ((nxu8_word_t)(cpu_state->code_read(cpu_state, cpu_state->reg_pc    )));
     instruction |= ((nxu8_word_t)(cpu_state->code_read(cpu_state, cpu_state->reg_pc + 1))) << 8;
+
+    
+
     cpu_state->reg_pc += 2;
     
     
